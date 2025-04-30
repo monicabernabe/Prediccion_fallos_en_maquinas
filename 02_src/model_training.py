@@ -1,4 +1,5 @@
 from sklearn.preprocessing import PowerTransformer, StandardScaler
+from sklearn.compose import ColumnTransformer
 from sklearn.linear_model import LogisticRegression
 from sklearn.feature_selection import SelectKBest, f_classif
 from sklearn.pipeline import Pipeline

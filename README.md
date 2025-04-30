@@ -1,119 +1,112 @@
-**INFORME DE PREDICCIÓN AUTOMÁTICA DE FALLOS EN MÁQUINAS MEDIANTE DATOS DE SENSORES**
+# INFORME DE PREDICCIÓN AUTOMÁTICA DE FALLOS EN MÁQUINAS MEDIANTE DATOS DE SENSORES
 
-
-**Introducción:**
+## Introducción
 
 El objetivo de este proyecto es desarrollar un modelo de predicción automática de fallos en distintas máquinas que permita predecir la ocurrencia de posibles averías antes de que ocurran, con el objetivo de:
 
-  - Reducir el tiempo de inactividad de las máquinas al no produrcirse paradas de los equipos no planificadas para la realización de mantenimientos correctivos.
-  - Reducir la producción de material defectuoso como consecuencia de los fallos en los equipos.
-  - Optimizar los trabajos de mantenimiento, ya que podrá realizarse un mantenimiento preventivo únicamente cuando sea necesario, en base a la predicción del posible fallo, antes de que ocurra.
-  - Aumentar la productividad de los equipos.
+- Reducir el tiempo de inactividad de las máquinas al evitar paradas no planificadas.
+- Reducir la producción de material defectuoso como consecuencia de fallos.
+- Optimizar los trabajos de mantenimiento preventivo, realizándolos solo cuando sea necesario.
+- Aumentar la productividad de los equipos.
 
+## Descripción de los datos
 
-**Descripción de los datos:**
+Los datos utilizados en este proyecto provienen de Kaggle y están disponibles públicamente:
 
-Los datos utilizados en este proyecto provienen de Kaggle y están disponibles públicamente para su uso.
+[Kaggle Dataset - Machine Failure Prediction Using Sensor Data](https://www.kaggle.com/datasets/umerrtx/machine-failure-prediction-using-sensor-data/data)
 
+Este conjunto de datos contiene lecturas de sensores de varias máquinas, así como los fallos registrados. A continuación se describe cada columna:
 
-https://www.google.com/url?q=https%3A%2F%2Fwww.kaggle.com%2Fdatasets%2Fumerrtx%2Fmachine-failure-prediction-using-sensor-data%2Fdata
+- **footfall**: Número de personas u objetos que pasan por la máquina. Influye en el desgaste.
+- **tempMode**: Modo o ajuste de temperatura de la máquina.
+- **AQ**: Índice de calidad del aire. El polvo o humedad afectan el rendimiento.
+- **USS**: Medición de proximidad. Indica obstáculos o acumulaciones de residuos.
+- **CS**: Consumo eléctrico. Un aumento puede indicar sobrecarga o fallo.
+- **VOC**: Nivel de compuestos químicos volátiles. Puede afectar los componentes.
+- **RP**: Revoluciones por minuto (RPM). Anomalías pueden indicar desgaste mecánico.
+- **IP**: Presión de entrada de fluido. Caídas pueden indicar fugas o bloqueos.
+- **Temperature**: Temperatura de funcionamiento. Cambios bruscos son señal de posibles fallos.
+- **fail**: Variable objetivo. Indica si hubo (1) o no (0) un fallo en la máquina.
 
-Este conjunto de datos contiene datos de sensores recogidos de varias máquinas.
+## Tecnologías utilizadas
 
-Incluye diversas lecturas de sensores, así como los fallos registrados de las máquinas.
+- Python  
+- Pandas  
+- Numpy  
+- Matplotlib  
+- Seaborn  
+- Scikit-learn  
+- imblearn  
+- Streamlit  
 
-Descripción de las columnas:
+## Análisis exploratorio (EDA) y preprocesamiento
 
-- **footfall:**
-  - El número de personas u objetos que pasan por la máquina.
-  - Influye en el desgaste o acumulación de partículas, afectando el rendimiento.
+Se realizó un análisis exploratorio para identificar correlaciones entre variables y patrones que puedan influir en la predicción de fallos. Posteriormente se eliminaron duplicados y se trataron valores atípicos.
 
-- **tempMode:**
-  - El modo o ajuste de temperatura en el que opera la máquina.
-  - Está relacionado con diferentes condiciones de trabajo.
+Se definieron tres pipelines para adaptar el preprocesamiento al tipo de modelo:
 
-- **AQ:**
-  - Índice de calidad (pureza) del aire cerca de la máquina.
-  - Una mala calidad del aire (presencia de polvo, humedad, partículas) puede contribuir al deterioro o mal funcionamiento de la máquina.
+- **Pipeline 1**: Log Transform + Normalización + Balanceo → Modelos lineales, de distancia y probabilísticos.
+- **Pipeline 2**: Log Transform + Balanceo → Modelos basados en árboles y probabilísticos.
+- **Pipeline 3**: Solo Balanceo → Modelos basados en árboles.
 
-- **USS:**
-  - Datos del sensor ultrasónico, que indica las mediciones de proximidad a la máquina.
-  - Indica la proximidad de materiales, obstáculos o acumulaciones de residuos que podrían afectar el funcionamiento.
+## Modelado y evaluación de modelos
 
-- **CS:**
-  - Lecturas del sensor de corriente, indicando el uso de corriente eléctrica de la máquina, es decir, el consumo eléctrico de la máquina.
-  - Un aumento inesperado de corriente puede indicar sobrecarga o fallo inminente en componentes eléctricos.
+| Tipo de Modelo            | Algoritmo                  | Descripción                                                                                                                                   |
+|---------------------------|----------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
+| **Modelos Lineales**      | `LogisticRegression`       | Estima la probabilidad de una clase en función de una combinación lineal de características.                                                  |
+| **Modelos de Árboles**    | `DecisionTreeClassifier`   | Divide datos en ramas según decisiones en nodos. Captura relaciones no lineales.                                                              |
+|                           | `RandomForestClassifier`   | Varios árboles en subconjuntos aleatorios de datos y variables. Reduce sobreajuste.                                                           |
+|                           | `GradientBoostingClassifier`| Boosting secuencial. Cada modelo corrige errores del anterior.                                                                                |
+|                           | `LightGBM`                 | Boosting eficiente con histogramas y crecimiento por niveles.                                                                                 |
+|                           | `XGBoost`                  | Boosting con regularización, manejo de nulos y paralelización. Potente y robusto.                                                             |
+| **Modelos de Distancia**  | `KNeighborsClassifier`     | Clasifica según los k vecinos más cercanos en el espacio de características.                                                                  |
+|                           | `SVC`                      | Encuentra el hiperplano óptimo. Soporta kernels para relaciones no lineales.                                                                  |
+| **Modelos Probabilísticos**| `GaussianNB`             | Clasificador bayesiano. Asume distribución normal para cada característica. Calcula probabilidades condicionales por clase.                  |
 
-- **VOC:**
-  - Nivel de compuestos orgánicos volátiles detectado cerca de la máquina, es decir, la concentración de sustancias químicas en el aire.
-  - La exposición a altos niveles de VOC puede afectar la vida útil de los componentes internos.
+### Métricas utilizadas
 
-- **RP:**
-  - Posición rotacional o RPM (revoluciones por minuto) de las piezas de la máquina.
-  - Cambios anómalos en la velocidad pueden ser señales de desgaste mecánico o problemas en la lubricación.
+- **Accuracy**: Porcentaje de predicciones correctas.  
+- **Precision**: Proporción de predicciones positivas que realmente lo son.  
+- **Recall (Sensibilidad)**: Proporción de fallos reales correctamente detectados.  
+- **F1-Score**: Media armónica entre precisión y recall.  
+- **ROC AUC**: Área bajo la curva ROC, que muestra la relación entre TPR y FPR.
 
-- **IP:**
-  - Presión de entrada del fluido (aire, agua, aceite, etc.) a la máquina.
-  - Bajadas de presión podrían indicar fugas, bloqueos o problemas en la alimentación del sistema.
+## Resultados y conclusiones
 
-- **Temperature:**
-  - Temperatura de funcionamiento de la máquina.
-  - Un aumento repentino podría señalar fricción excesiva, sobrecarga o fallos en la refrigeración.
+El modelo seleccionado fue **Logistic Regression**, ya que obtuvo los mejores resultados en las métricas clave:
 
-- **fail:**
-  - Indicador binario de fallo de la máquina (1 para fallo, 0 para ningún fallo).
-  - Variable objetivo a predecir.
+- **Recall**: 0,911  
+- **ROC AUC**: 0,971  
 
+Estos resultados lo convierten en el mejor modelo para detectar la mayoría de fallos reales y minimizar falsos negativos.
 
-**Tecnologías utilizadas:**
+## Archivos del proyecto
 
-- Python
-- Pandas
-- Numpy
-- Matplotlib 
-- Seaborn
-- Scikit-learn
-- imblearn
-- Streamlit
+- `sensores_01.csv`: Dataset utilizado.  
+- `cargar_datos.py`: Carga de datos y división entre entrenamiento y test.  
+- `data_preprocessing.py`: Procesamiento y creación de pipelines.  
+- `model_training.py`: Entrenamiento del modelo.  
+- `logisticRegression_fallos.pkl`: Modelo entrenado guardado (pipeline).  
 
-**Análisis Exploratorio (EDA) y Preprocesamiento de los datos:**
+## Estructura del proyecto
+📁 proyecto_fallos_maq
+├── sensores_01.csv # Dataset de sensores con fallos
+├── cargar_datos.py # Carga de datos y división en train/test
+├── data_preprocessing.py # Preprocesamiento de datos 
+├── model_training.py # Entrenamiento del modelo y pipelines
+├── logisticRegression_fallos.pkl # Modelo entrenado guardado
+├── app.py # Aplicación en Streamlit para uso del modelo
+└── README.md # Documentación del proyecto
 
-Se realizó un análisis para identificar correlaciones entre las variables y detectar patrones que pudieran influir en la predicción de los fallos en las máquinas.
+## Ejecución Local
+1. Clona el repositorio:
+git clone https://github.com/monicabernabe/Prediccion_fallos_en_maquinas.git
+2. Instala las dependencias:
+pip install -r requirements.txt
+3. Ejecuta la app:
+streamlit run app.py
 
-**Modelado y evaluación de modelos:**
-- **Limpieza de datos**: se eliminaron las filas duplicadas y se trataron los valores atípipcos.
-- **Preprocesamiento de datos**: se crearon 3 pipelines con distintos procesamientos de datos con el fin de adecuar el preprocesamiento de los datos al tipo de modelo a entrenar.
-  -  **Pipeline 1**: Transformación Logarítmica + Normalización + Balanceo de la variable objetivo, para el entrenamiento de modelos lineales y modelos basados en distancia y modelos probabilísticos.
-  - **Pipeline 2**: Transformación Logarítmica + Balanceo de la variable objetivo, para modelos basados en árboles y modelos probabilísticos.
-  - **Pipeline 3**: Solo Balanceo de la variable objetivo, para modelos basados en árboles.
-- **Modelos entrenados**:
-  - **Modelos lineales**:
-    - LogisticRegression: Modelo lineal que estima la probabilidad de una clase en función de una combinación lineal de las características de entrada. Es comúnmente utilizado para problemas de clasificación binaria y multiclase.
-  - **Modelos Basados en Árboles**:
-    - DecisionTreeClassifier: Modelo basado en árboles de decisión que divide los datos en ramas según las decisiones tomadas en cada nodo, basadas en los valores de las características. Es intuitivo y puede capturar relaciones no lineales.
-    - RandomForestClassifier: Conjunto de múltiples árboles de decisión entrenados en subconjuntos aleatorios de los datos y utilizando subconjuntos aleatorios de las características. Las predicciones se realizan por votación de los árboles, lo que mejora la generalización y reduce el sobreajuste.
-    -  GradientBoostingClassifier: Algoritmo de boosting que construye un modelo aditivo secuencialmente, donde cada nuevo modelo débil (típicamente árboles de decisión) corrige los errores del modelo anterior. Optimiza la clasificación combinando múltiples modelos débiles en un modelo fuerte.
-    - LightGBM: Un framework de boosting de gradiente diseñado para ser distribuido y altamente eficiente. Utiliza técnicas como el muestreo de gradiente basado en histogramas y el crecimiento de hojas por niveles para acelerar el entrenamiento y reducir el uso de memoria.
-    - XGBoost: Una implementación popular y eficiente del algoritmo de boosting de gradiente. Proporciona regularización L1 y L2, manejo de valores faltantes y paralelización, lo que lo hace potente y robusto.
-  - **Modelos Basados en Distancia**:
-    - KNeighborsClassifier: Clasificador basado en la proximidad de los puntos a sus vecinos más cercanos en el espacio de características. La clase de un nuevo punto se decide por la mayoría de las clases de sus k vecinos más cercanos.
-    - SVC (Support Vector Classifier): Modelo basado en máquinas de soporte vectorial, que encuentra un hiperplano óptimo en un espacio de alta dimensión para separar las clases, maximizando el margen entre ellas. Puede utilizar diferentes funciones kernel para modelar relaciones no lineales.
-  - **Modelos Probabilísticos**:
-    - GaussianNB: Modelo basado en la teoría de Bayes, que asume que las características de cada clase siguen una distribución gaussiana (normal). Es un clasificador probabilístico que calcula la probabilidad de pertenencia a cada clase basándose en las probabilidades condicionales de las características.
-- **Métricas utilizadas**:
-    - Exactitud (Accuracy): Representa el porcentaje de predicciones correctas realizadas por el modelo sobre el total de predicciones. 
-    - Precisión (Precision): Mide la proporción de instancias clasificadas como positivas (fallo de la máquina) que realmente lo fueron.
-    - Recall (Sensibilidad o Exhaustividad): Mide la proporción de instancias positivas reales (fallos de la máquina) que fueron correctamente identificadas por el modelo. Un alto recall indica que el modelo es bueno para detectar la mayoría de los fallos reales.
-    - F1-Score: Es la media armónica de la precisión y el recall, proporcionando una medida equilibrada del rendimiento del modelo, especialmente útil cuando las clases están desbalanceadas. 
-    - Curva ROC y AUC (Área Bajo la Curva ROC): La curva ROC grafica la tasa de verdaderos positivos (TPR) contra la tasa de falsos positivos (FPR) para diferentes umbrales de clasificación.
-  
-**Resultados y conclusiones:**
+## Autora
 
-Finalmente se ha seleccionado el modelo **Logistic Regression** por ser el modelo que ha obtenido el mejor mejor Recall (0,911) y el mejor ROC AUC (0,971) en comparación con los otros modelos. 
-
-**Archivos del proyecto:**
-- sensores_01.csv: dataset utilizado para el entrenamiento del modelo.
-- cargar_datos.py: archivo para realizar la carga de datos y la separación del dataset en datos de entrenamiento y datos de test.
-- data_preprocessing.py: archivo para el preprocesamiento de los datos.
-- model_training.py: archivo para el entrenamiento del modelo.
-- logisticRegression_fallos.pkl: pipeline del modelo entrenado.
+**Mónica Bernabé**  
+Ingeniera Técnica Industrial | Aseguramiento de calidad | Consultora en Validación de Sistemas | Ciencia de Datos

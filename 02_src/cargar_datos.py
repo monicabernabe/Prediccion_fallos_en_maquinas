@@ -7,7 +7,7 @@ from sklearn.model_selection import train_test_split
 # Cargar datos y dividir el conjunto de datos
 def load_and_split_data():
     try:
-        df_sensores = pd.read_csv('sensores_01.csv')
+        df_sensores = pd.read_csv(data/'sensores_01.csv')
     except FileNotFoundError:
         print("Error: No se encontró el archivo 'sensores_01.csv'.")
         sys.exit()
